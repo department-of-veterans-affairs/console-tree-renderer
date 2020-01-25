@@ -177,3 +177,5 @@ class ConsoleTreeRenderer
     border << margin + right_char
   end
 end
+
+require 'console_tree_renderer/console_tree_metadata'
