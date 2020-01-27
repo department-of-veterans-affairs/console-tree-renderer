@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ConsoleTreeRenderer::ConsoleTreeMetadata
+class TreeRenderer::TreeMetadata
   def initialize(obj, config, func_hash, col_labels = nil)
     @obj = obj
     @config = config

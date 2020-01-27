@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+# Entry class
 class ConsoleTreeRenderer
   attr_reader :config
 
+  # renderer's configuration
   class TreeRendererConfig
     attr_accessor :highlight_char,
                   :default_atts,
@@ -16,8 +18,8 @@ class ConsoleTreeRenderer
     attr_accessor :custom
 
     def initialize
-      @highlight_char = "*"
-      @func_error_char = "-"
+      @highlight_char = '*'
+      @func_error_char = '-'
       @heading_transform = :upcase_headings
       @default_atts = [:id, :created_at, :updated_at]
       @heading_label_template = ->(headingObj) { "#{headingObj.class.name} #{headingObj} " }
@@ -52,35 +54,35 @@ class ConsoleTreeRenderer
 
   def ansi_mode
     config.include_border = true
-    config.col_sep = "│"
-    config.top_chars = "┌──┐"
-    config.bottom_chars = "└──┘"
-    config.heading_fill_str = "─"
-    config.cell_margin_char = " "
+    config.col_sep = '│'
+    config.top_chars = '┌──┐'
+    config.bottom_chars = '└──┘'
+    config.heading_fill_str = '─'
+    config.cell_margin_char = ' '
     self
   end
 
   def ascii_mode
     config.include_border = true
-    config.col_sep = "|"
-    config.top_chars = "+--+"
-    config.bottom_chars = "+--+"
-    config.heading_fill_str = "-"
-    config.cell_margin_char = " "
+    config.col_sep = '|'
+    config.top_chars = '+--+'
+    config.bottom_chars = '+--+'
+    config.heading_fill_str = '-'
+    config.cell_margin_char = ' '
     self
   end
 
   def compact_mode
     config.include_border = false
-    config.col_sep = " "
-    config.heading_fill_str = " "
-    config.cell_margin_char = ""
+    config.col_sep = ' '
+    config.heading_fill_str = ' '
+    config.cell_margin_char = ''
     self
   end
 
   # format obj into a string presented as a tree
   def tree_str(obj, *atts, **kwargs)
-    fail "TTY::Tree does not work when config.col_sep='/'" if config.col_sep == "/"
+    fail "TTY::Tree does not work when config.col_sep='/'" if config.col_sep == '/'
 
     tree_rows_hash, metadata = tree_hash(obj, *atts, **kwargs)
     table = TTY::Tree.new(tree_rows_hash).render
@@ -94,7 +96,7 @@ class ConsoleTreeRenderer
     end
   end
 
-  HIGHLIGHT_COL_KEY = " "
+  HIGHLIGHT_COL_KEY = ' '
 
   # create hash for TTY:Tree to generate formatted output, along with metadata
   def tree_hash(obj, *atts, col_labels: nil, highlight_row: nil)
@@ -105,7 +107,7 @@ class ConsoleTreeRenderer
 
     # func_hash={ "colKey1"=>lambda(row), "colKey2"=>lambda2(row), ... }
     func_hash = derive_value_funcs_hash(atts, highlight_row)
-    metadata = ConsoleTreeRenderer::ConsoleTreeMetadata.new(obj, config, func_hash, col_labels)
+    metadata = TreeRenderer::TreeMetadata.new(obj, config, func_hash, col_labels)
     tree_hash = (obj == obj.heading_object(config)) ? structure_heading_obj(metadata, obj) : structure_row(obj, metadata)
     [tree_hash, metadata]
   end
@@ -120,9 +122,9 @@ class ConsoleTreeRenderer
       elsif att.is_a?(Array)
         funcs_hash[att.to_s] = ->(row) { ConsoleTreeRenderer.send_chain(row, att)&.to_s }
       elsif att == HIGHLIGHT_COL_KEY
-        funcs_hash[HIGHLIGHT_COL_KEY] = ->(row) { (row == highlighted_row) ? config.highlight_char : " " }
+        funcs_hash[HIGHLIGHT_COL_KEY] = ->(row) { (row == highlighted_row) ? config.highlight_char : ' ' }
       else
-        funcs_hash[att.to_s] = ->(row) { row.send(att)&.to_s || "" }
+        funcs_hash[att.to_s] = ->(row) { row.send(att)&.to_s || '' }
       end
     end
   end
@@ -135,8 +137,8 @@ class ConsoleTreeRenderer
 
   # create a hash entry for rows and their child rows, recursively
   def structure_row(row, metadata, depth = 0)
-    row_str = row.row_label(config).ljust(metadata.max_name_length - (ConsoleTreeRenderer::ConsoleTreeMetadata::INDENT_SIZE * depth)) +
-              " " + tree_row_attributes(metadata.col_metadata, metadata.rows[row])
+    row_str = row.row_label(config).ljust(metadata.max_name_length - (TreeRenderer::TreeMetadata::INDENT_SIZE * depth)) +
+              ' ' + tree_row_attributes(metadata.col_metadata, metadata.rows[row])
     { row_str => row.row_children(config).map { |child| structure_row(child, metadata, depth + 1) } }
   end
 
@@ -152,18 +154,18 @@ class ConsoleTreeRenderer
   end
 
   def top_border(max_name_length, col_metadata)
-    "".ljust(max_name_length) + " " + write_border(col_metadata, config.top_chars)
+    ''.ljust(max_name_length) + ' ' + write_border(col_metadata, config.top_chars)
   end
 
   def bottom_border(max_name_length, col_metadata)
-    "".ljust(max_name_length) + " " + write_border(col_metadata, config.bottom_chars)
+    ''.ljust(max_name_length) + ' ' + write_border(col_metadata, config.bottom_chars)
   end
 
-  def write_border(columns, border_chars = "+-|+")
+  def write_border(columns, border_chars = '+-|+')
     if config.col_sep.empty?
-      col_sep = ""
-      left_char = ""
-      right_char = ""
+      col_sep = ''
+      left_char = ''
+      right_char = ''
     else
       col_sep = border_chars[2].center(config.col_sep.size)
       left_char = border_chars[0]
@@ -178,4 +180,4 @@ class ConsoleTreeRenderer
   end
 end
 
-require 'console_tree_renderer/console_tree_metadata'
+require 'tree_renderer/tree_metadata'
