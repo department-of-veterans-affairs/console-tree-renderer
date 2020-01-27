@@ -1,10 +1,10 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "tree_renderer/version"
+require "console_tree_renderer/version"
 
 Gem::Specification.new do |s|
   s.name        = 'console_tree_renderer'
-  s.version     = TreeRenderer::VERSION
+  s.version     = ConsoleTreeRenderer::VERSION
   s.date        = '2020-01-23'
   s.summary     = "Print tree-like objects with column-aligned attributes"
   s.description = "Renders tree-like objects and column-aligned attributes for each tree node"

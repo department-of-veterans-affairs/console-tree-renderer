@@ -29,7 +29,7 @@ describe 'TreeMetadata' do
   before do
     #obj = MyTree.new
 
-    renderer = ConsoleTreeRenderer.new()
+    renderer = ConsoleTreeRenderer::ConsoleRenderer.new()
       #metadata = TreeMetadata.new(obj, renderer.config, func_hash, col_labels)
   end
 
