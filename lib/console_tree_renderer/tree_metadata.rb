@@ -11,7 +11,7 @@ class ConsoleTreeRenderer::TreeMetadata
   # length of longest heading or row label (including indenting) when formatted as a tree
   def max_name_length
     @max_name_length ||= @obj.rootlevel_rows(config).map do |row|
-      calculate_max_name_length(row, (@obj == @obj.heading_object(config)) ? 1 : 0)
+      calculate_max_name_length(row, @obj == @obj.heading_object(config) ? 1 : 0)
     end.append(heading_label_str.size).max
   end
 
@@ -55,6 +55,13 @@ class ConsoleTreeRenderer::TreeMetadata
     @heading_row_str << config.cell_margin_char + config.col_sep
   end
 
+  # number of characters TTY::Tree uses for indenting
+  INDENT_SIZE = 4
+
+  def indent_length(depth)
+    INDENT_SIZE * depth
+  end
+
   private
 
   attr_reader :config
@@ -63,12 +70,9 @@ class ConsoleTreeRenderer::TreeMetadata
     @heading_label_str ||= config.heading_label_template.call(@obj.heading_object(config))
   end
 
-  # number of characters TTY::Tree uses for indenting
-  INDENT_SIZE = 4
-
   # return the max length for strings of row labels, considering tree depth indentation
   def calculate_max_name_length(row, depth = 0)
-    row_label_length = (INDENT_SIZE * depth) + row.row_label(config).length
+    row_label_length = indent_length(depth) + row.row_label(config).length
     row.row_children(config).map do |child|
       calculate_max_name_length(child, depth + 1)
     end.append(row_label_length).max

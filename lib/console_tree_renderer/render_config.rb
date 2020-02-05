@@ -31,4 +31,32 @@ class RendererConfig
         clipped_upcase_headings: ->(key, col_obj) { key[0..[0, col_obj[:width] - 1].max].upcase }
     }
   end
+
+  def ansi
+    self.include_border = true
+    self.col_sep = '│'
+    self.top_chars = '┌──┐'
+    self.bottom_chars = '└──┘'
+    self.heading_fill_str = '─'
+    self.cell_margin_char = ' '
+    self
+  end
+
+  def ascii
+    self.include_border = true
+    self.col_sep = '|'
+    self.top_chars = '+--+'
+    self.bottom_chars = '+--+'
+    self.heading_fill_str = '-'
+    self.cell_margin_char = ' '
+    self
+  end
+
+  def compact
+    self.include_border = false
+    self.col_sep = ' '
+    self.heading_fill_str = ' '
+    self.cell_margin_char = ''
+    self
+  end
 end

@@ -8,41 +8,27 @@ class ConsoleTreeRenderer::ConsoleRenderer
   attr_reader :config
 
   def initialize
-    @config = RendererConfig.new
-    ansi_mode
+    @config = RendererConfig.new.ansi
   end
 
   def ansi_mode
-    config.include_border = true
-    config.col_sep = '│'
-    config.top_chars = '┌──┐'
-    config.bottom_chars = '└──┘'
-    config.heading_fill_str = '─'
-    config.cell_margin_char = ' '
+    config.ansi
     self
   end
 
   def ascii_mode
-    config.include_border = true
-    config.col_sep = '|'
-    config.top_chars = '+--+'
-    config.bottom_chars = '+--+'
-    config.heading_fill_str = '-'
-    config.cell_margin_char = ' '
+    config.ascii
     self
   end
 
   def compact_mode
-    config.include_border = false
-    config.col_sep = ' '
-    config.heading_fill_str = ' '
-    config.cell_margin_char = ''
+    config.compact
     self
   end
 
   # format obj into a string presented as a tree
   def tree_str(obj, *atts, **kwargs)
-    fail "TTY::Tree does not work when config.col_sep='/'" if config.col_sep == '/'
+    raise "TTY::Tree does not work when config.col_sep='/'" if config.col_sep == '/'
 
     tree_rows_hash, metadata = tree_hash(obj, *atts, **kwargs)
     table = TTY::Tree.new(tree_rows_hash).render
@@ -68,7 +54,7 @@ class ConsoleTreeRenderer::ConsoleRenderer
     # func_hash={ "colKey1"=>lambda(row), "colKey2"=>lambda2(row), ... }
     func_hash = derive_value_funcs_hash(atts, highlight_row)
     metadata = ConsoleTreeRenderer::TreeMetadata.new(obj, config, func_hash, col_labels)
-    tree_hash = (obj == obj.heading_object(config)) ? structure_heading_obj(metadata, obj) : structure_row(obj, metadata)
+    tree_hash = obj == obj.heading_object(config) ? structure_heading_obj(metadata, obj) : structure_row(obj, metadata)
     [tree_hash, metadata]
   end
 
@@ -82,7 +68,7 @@ class ConsoleTreeRenderer::ConsoleRenderer
       elsif att.is_a?(Array)
         funcs_hash[att.to_s] = ->(row) { ConsoleTreeRenderer.send_chain(row, att)&.to_s }
       elsif att == HIGHLIGHT_COL_KEY
-        funcs_hash[HIGHLIGHT_COL_KEY] = ->(row) { (row == highlighted_row) ? config.highlight_char : ' ' }
+        funcs_hash[HIGHLIGHT_COL_KEY] = ->(row) { row == highlighted_row ? config.highlight_char : ' ' }
       else
         funcs_hash[att.to_s] = ->(row) { row.send(att)&.to_s || '' }
       end
@@ -97,18 +83,18 @@ class ConsoleTreeRenderer::ConsoleRenderer
 
   # create a hash entry for rows and their child rows, recursively
   def structure_row(row, metadata, depth = 0)
-    row_str = row.row_label(config).ljust(metadata.max_name_length - (ConsoleTreeRenderer::TreeMetadata::INDENT_SIZE * depth)) +
+    row_str = row.row_label(config).ljust(metadata.max_name_length - metadata.indent_length(depth)) +
               ' ' + tree_row_attributes(metadata.col_metadata, metadata.rows[row])
     { row_str => row.row_children(config).map { |child| structure_row(child, metadata, depth + 1) } }
   end
 
   # create column-aligned string concatenating all column values for a row
   def tree_row_attributes(columns, row)
-    col_seperator_with_margins = config.cell_margin_char + config.col_sep + config.cell_margin_char
+    col_separator_with_margins = config.cell_margin_char + config.col_sep + config.cell_margin_char
     values_str = columns.map do |key, col_obj|
       value = row[key]
       value.ljust(col_obj[:width])
-    end.compact.join(col_seperator_with_margins)
+    end.compact.join(col_separator_with_margins)
 
     config.col_sep + config.cell_margin_char + values_str + config.cell_margin_char + config.col_sep
   end
