@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'tty-tree'
 require_relative 'tree_metadata'
 require_relative 'render_config'
 
