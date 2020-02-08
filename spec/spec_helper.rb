@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+require 'byebug'
 require 'console_tree_renderer'
 
 RSpec.configure do |config|

@@ -25,5 +25,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "bundler", "~> 1.17"
   s.add_development_dependency "rake", "~> 10.0"
   s.add_development_dependency "rspec", "~> 3.0"
-  s.add_development_dependency "tty-tree", "~>0.3.0"
+  s.add_development_dependency "byebug" #, "~>0.3.0"
+  s.add_dependency "tty-tree", "~>0.3.0"
 end
