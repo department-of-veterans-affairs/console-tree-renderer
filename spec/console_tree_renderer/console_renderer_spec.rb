@@ -69,40 +69,40 @@ describe 'ConsoleRenderer' do
         end
       end
 
-      context '#tree is called on a task' do
-        def check_for_highlight(calling_obj, metadata, task_to_highlight)
+      context '#tree is called on a row' do
+        def check_for_highlight(calling_obj, metadata, row_to_highlight)
           highlight_char = @tree_holder.global_renderer.config.highlight_char
-          expect(metadata.rows[task_to_highlight][' ']).to eq highlight_char
+          expect(metadata.rows[row_to_highlight][' ']).to eq highlight_char
 
           calling_obj.row_objects.each do |row|
-            expect(metadata.rows[row][' ']).to eq ' ' unless row == task_to_highlight
+            expect(metadata.rows[row][' ']).to eq ' ' unless row == row_to_highlight
           end
         end
 
-        it 'highlights self task with an asterisk' do
-          task_to_highlight = @tree_holder.row_objects.sample
-          task_to_highlight.treee(' ', :id, :status)
-          _rows_hash, metadata = task_to_highlight.tree_hash(' ', :id, :status)
-          check_for_highlight(task_to_highlight, metadata, task_to_highlight)
+        it 'highlights self row with an asterisk' do
+          row_to_highlight = @tree_holder.row_objects.sample
+          row_to_highlight.treee(' ', :id, :status)
+          _rows_hash, metadata = row_to_highlight.tree_hash(' ', :id, :status)
+          check_for_highlight(row_to_highlight, metadata, row_to_highlight)
         end
 
-        it 'highlights specified task with an asterisk, even if no columns are specified' do
-          task_to_highlight = @tree_holder.row_objects.sample
-          @tree_holder.root.treee(highlight: task_to_highlight.id)
-          _rows_hash, metadata = @tree_holder.root.tree_hash(highlight: task_to_highlight.id)
-          check_for_highlight(@tree_holder.root, metadata, task_to_highlight)
+        it 'highlights specified row with an asterisk, even if no columns are specified' do
+          row_to_highlight = @tree_holder.row_objects.sample
+          @tree_holder.root.treee(highlight: row_to_highlight.id)
+          _rows_hash, metadata = @tree_holder.root.tree_hash(highlight: row_to_highlight.id)
+          check_for_highlight(@tree_holder.root, metadata, row_to_highlight)
         end
 
-        it 'highlights specified task with an asterisk, even if highlight column is not specified' do
-          task_to_highlight = @tree_holder.row_objects.sample
+        it 'highlights specified row with an asterisk, even if highlight column is not specified' do
+          row_to_highlight = @tree_holder.row_objects.sample
           @tree_holder.global_renderer.config.default_atts = %i[id status]
-          @tree_holder.root.treee(highlight: task_to_highlight.id)
-          _rows_hash, metadata = @tree_holder.root.tree_hash(highlight: task_to_highlight.id)
-          check_for_highlight(@tree_holder.root, metadata, task_to_highlight)
+          @tree_holder.root.treee(highlight: row_to_highlight.id)
+          _rows_hash, metadata = @tree_holder.root.tree_hash(highlight: row_to_highlight.id)
+          check_for_highlight(@tree_holder.root, metadata, row_to_highlight)
         end
       end
 
-      context 'custom TaskTreeRenderer is used in functions' do
+      context 'custom renderer is used in functions' do
         def tree1(obj, *atts, **kwargs)
           kwargs[:renderer] ||= TreeLikeObject::RenderModule.new_renderer
           kwargs[:renderer].tap do |r|
